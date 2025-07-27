@@ -10,7 +10,6 @@
     "start": "cd packages/backend && pnpm start",
     "test": "pnpm run --recursive test",
     "clean": "pnpm run --recursive clean",
-    "install": "pnpm install",
     "deploy:setup": "echo 'See DEPLOYMENT.md for deployment instructions'"
   },
   "devDependencies": {
