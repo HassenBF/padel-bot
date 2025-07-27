@@ -9,7 +9,7 @@ export function createApp(): Application {
   // Middleware
   app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-      ? [process.env.FRONTEND_URL, 'https://padel-bot-v4.vercel.app'].filter(Boolean)
+      ? [process.env.FRONTEND_URL, 'https://padel-bot-v4.vercel.app'].filter((url): url is string => Boolean(url))
       : true,
     credentials: true
   }));
