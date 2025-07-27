@@ -1,0 +1,25 @@
+{
+  "name": "padel-bot-v4",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Padel Bot Monorepo",
+  "scripts": {
+    "dev": "concurrently -k -p \"[{name}]\" -n \"backend,frontend\" \"pnpm --filter @padel-bot/backend dev\" \"pnpm --filter @padel-bot/frontend dev\"",
+    "build:shared": "pnpm --filter @padel-bot/shared build",
+    "build": "pnpm run build:shared && pnpm run --recursive --filter '!@padel-bot/shared' build",
+    "start": "cd packages/backend && pnpm start",
+    "test": "pnpm run --recursive test",
+    "clean": "pnpm run --recursive clean",
+    "install": "pnpm install",
+    "deploy:setup": "echo 'See DEPLOYMENT.md for deployment instructions'"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

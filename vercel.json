@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "packages/backend/src/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["packages/shared/dist/**"]
+      }
+    },
+    {
+      "src": "packages/frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "packages/frontend/dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "packages/backend/src/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "packages/frontend/dist/$1"
+    }
+  ],
+  "buildCommand": "pnpm run build",
+  "installCommand": "pnpm install",
+  "functions": {
+    "packages/backend/src/index.ts": {
+      "maxDuration": 30
+    }
+  }
+}
