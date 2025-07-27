@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd ../.. && pnpm run build",
-  "outputDirectory": "dist",
+  "version": 2,
   "installCommand": "cd ../.. && pnpm install",
-  "framework": "vite"
+  "buildCommand": "cd ../.. && pnpm --filter @padel-bot/shared build && pnpm --filter @padel-bot/frontend build",
+  "outputDirectory": "dist"
 }

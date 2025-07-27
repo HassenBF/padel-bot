@@ -1,17 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "src/index.ts",
-      "use": "@vercel/node"
-    }
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @padel-bot/shared build && pnpm --filter @padel-bot/backend build",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api" }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "src/index.ts"
-    }
-  ],
-  "buildCommand": "cd ../.. && pnpm run build",
-  "installCommand": "cd ../.. && pnpm install"
+  "outputDirectory": "dist"
 }

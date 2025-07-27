@@ -1,36 +1,22 @@
 {
   "version": 2,
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @padel-bot/shared build && pnpm --filter @padel-bot/frontend build && pnpm --filter @padel-bot/backend build",
+  "outputDirectory": "packages/frontend/dist",
   "builds": [
     {
-      "src": "packages/backend/src/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["packages/shared/dist/**"]
-      }
-    },
-    {
-      "src": "packages/frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "packages/frontend/dist"
-      }
+      "src": "packages/backend/api/index.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "packages/backend/src/index.ts"
+      "dest": "/packages/backend/api/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "packages/frontend/dist/$1"
+      "dest": "/$1"
     }
-  ],
-  "buildCommand": "pnpm run build",
-  "installCommand": "pnpm install",
-  "functions": {
-    "packages/backend/src/index.ts": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
