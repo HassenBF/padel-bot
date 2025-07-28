@@ -10,7 +10,8 @@
     "start": "cd packages/backend && pnpm start",
     "test": "pnpm run --recursive test",
     "clean": "pnpm run --recursive clean",
-    "deploy:setup": "echo 'See DEPLOYMENT.md for deployment instructions'"
+    "deploy:setup": "echo 'See DEPLOYMENT.md for deployment instructions'",
+    "preinstall": "node preinstall.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

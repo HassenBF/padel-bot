@@ -7,11 +7,23 @@ export function createApp(): Application {
   const app = express();
 
   // Middleware
+  const allowedOrigins = process.env.NODE_ENV === 'production' 
+    ? [
+        process.env.FRONTEND_URL,
+        'https://padel-bot-v4.vercel.app',
+        'https://padel-bot-v4-frontend.vercel.app',
+        // Allow any padel-bot domain on vercel
+        /^https:\/\/padel-bot.*\.vercel\.app$/,
+        // Allow preview deployments
+        /^https:\/\/padel-bot-v4-.*\.vercel\.app$/
+      ].filter((origin): origin is string | RegExp => Boolean(origin))
+    : true;
+
   app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-      ? [process.env.FRONTEND_URL, 'https://padel-bot-v4.vercel.app'].filter((url): url is string => Boolean(url))
-      : true,
-    credentials: true
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
   }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
