@@ -1,7 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import { router } from './routes';
-import { errorHandler, notFoundHandler } from './middleware/error-handler';
+import { router } from './routes/index.js';
+import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 
 export function createApp(): Application {
   const app = express();
@@ -20,7 +20,7 @@ export function createApp(): Application {
   app.use('/api', router);
 
   // Global health check endpoint
-  app.get('/health', (req: Request, res: Response) => {
+  app.get('/health', (_req: Request, res: Response) => {
     res.json({ 
       status: 'ok', 
       service: 'padel-bot-backend',

@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import { padelService } from '../services/padel.service';
-import { CRON_SCHEDULES, CLUBS } from '../config/constants';
+import { padelService } from '../services/padel.service.js';
+import { CRON_SCHEDULES, CLUBS } from '../config/constants.js';
 
 export class PadelCronJobs {
   private jobs: cron.ScheduledTask[] = [];

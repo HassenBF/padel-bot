@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -11,14 +13,148 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* CSS Custom Properties for consistent theming */
+  --primary-gradient: linear-gradient(135deg, #0078FA 0%, #004794 100%);
+  --header-gradient: linear-gradient(263deg, #0078FA -.28%, #004794 100%);
+  --secondary-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  --background-gradient: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--background-gradient);
+  color: #1f2937;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Custom component styles */
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-500 to-primary-600 text-white font-medium px-6 py-3 rounded-xl shadow-card hover:shadow-card-hover transform hover:-translate-y-0.5 transition-all duration-200 ease-out;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-primary-600 font-medium px-6 py-3 rounded-xl border-2 border-primary-200 shadow-card hover:shadow-card-hover hover:border-primary-300 transform hover:-translate-y-0.5 transition-all duration-200 ease-out;
+  }
+  
+  .card {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-card border border-white/20 transition-all duration-300 ease-out;
+  }
+  
+  .card-hover {
+    @apply hover:shadow-card-hover hover:-translate-y-1 hover:bg-white/90;
+  }
+  
+  .input-field {
+    @apply px-4 py-3 border-2 border-court-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 ease-out bg-white/80 backdrop-blur-sm;
+  }
+  
+  .day-pill {
+    @apply px-4 py-3 rounded-xl border-2 transition-all duration-200 ease-out font-medium text-sm cursor-pointer select-none;
+  }
+  
+  .day-pill-active {
+    @apply border-primary-500 bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg;
+  }
+  
+  .day-pill-inactive {
+    @apply border-court-200 bg-white/80 text-court-600 hover:border-court-300 hover:bg-white/90;
+  }
+}
+
+/* Animations */
+@layer utilities {
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent;
+  }
+  
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  
+  /* Custom slider styles */
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0078FA 0%, #004794 100%);
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 120, 250, 0.3);
+    border: 2px solid white;
+  }
+  
+  .slider::-moz-range-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0078FA 0%, #004794 100%);
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 120, 250, 0.3);
+    border: 2px solid white;
+  }
+  
+  .slider::-webkit-slider-track {
+    height: 8px;
+    background: linear-gradient(to right, #0078FA 0%, #0078FA var(--progress, 50%), #e2e8f0 var(--progress, 50%), #e2e8f0 100%);
+    border-radius: 4px;
+  }
+
+  /* Mobile-specific optimizations */
+  @media (max-width: 640px) {
+    .day-pill {
+      @apply py-3 px-2 text-center;
+    }
+    
+    .day-pill-active {
+      @apply shadow-md;
+    }
+    
+    .btn-primary, .btn-secondary {
+      @apply transform-none hover:transform-none;
+    }
+    
+    .btn-primary:active, .btn-secondary:active {
+      @apply scale-95;
+    }
+    
+    .card-hover {
+      @apply hover:transform-none hover:shadow-card;
+    }
+    
+    /* Improve touch target sizes */
+    .touch-manipulation {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Better scrolling on mobile */
+    .overflow-y-auto {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+  }
+  
+  /* Mobile landscape specific */
+  @media (max-width: 896px) and (orientation: landscape) {
+    .min-h-screen {
+      min-height: 100vh;
+      min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    }
+  }
 }

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { padelRouter } from './padel.routes';
+import { padelRouter } from './padel.routes.js';
 
 export const router: Router = Router();
 

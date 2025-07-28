@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Calendar, Clock, Search, CheckCircle, XCircle, Loader, ExternalLink } from 'lucide-react';
-import { apiService, ClubsResponse } from '../services/api';
+import { apiService } from '../services/api';
 import { FilterRequest, FilteredDayResult, ClubResults, ClubConfig } from '@padel-bot/shared';
 
-const PadelAvailabilityChecker = () => {
+interface PadelAvailabilityCheckerProps {
+  clubs: Record<string, ClubConfig & { key: string }>;
+  clubsLoading: boolean;
+  clubsError: string | null;
+}
+
+const PadelAvailabilityChecker: React.FC<PadelAvailabilityCheckerProps> = ({ clubs, clubsLoading, clubsError }) => {
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [timeRange, setTimeRange] = useState({ start: '18:00', end: '20:30' });
   const [weeksAhead, setWeeksAhead] = useState(2);
@@ -13,28 +19,6 @@ const PadelAvailabilityChecker = () => {
   const [totalSlots, setTotalSlots] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
-  const [clubs, setClubs] = useState<Record<string, ClubConfig & { key: string }>>({});
-  const [clubsLoading, setClubsLoading] = useState(true);
-
-  // Fetch clubs from API on component mount
-  useEffect(() => {
-    const fetchClubs = async () => {
-      try {
-        const response = await apiService.getClubs();
-        const clubsMap: Record<string, ClubConfig & { key: string }> = {};
-        response.clubs.forEach(club => {
-          clubsMap[club.key] = club;
-        });
-        setClubs(clubsMap);
-      } catch (error) {
-        console.error('Failed to fetch clubs:', error);
-        setError('Failed to load clubs configuration');
-      } finally {
-        setClubsLoading(false);
-      }
-    };
-    fetchClubs();
-  }, []);
 
   // Generate booking URL based on club configuration
   const generateBookingUrl = (date: string, clubId: string) => {
@@ -52,10 +36,6 @@ const PadelAvailabilityChecker = () => {
     return `${club.bookingUrl}?${params.toString()}`;
   };
 
-  // Old hardcoded clubs for reference (will be removed)
-  const oldClubs = {
-    // Removed - now fetched from API
-  };
 
   const daysOfWeek = [
     { value: 1, label: 'Lundi' },
@@ -110,11 +90,36 @@ const PadelAvailabilityChecker = () => {
 
   if (clubsLoading) {
     return (
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex items-center justify-center gap-2">
-            <Loader className="w-5 h-5 animate-spin" />
-            <span>Loading clubs configuration...</span>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="card card-hover p-6 sm:p-8 animate-fade-in">
+          <div className="flex flex-col items-center justify-center gap-4">
+            <div className="relative">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center animate-pulse">
+                <Loader className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-spin" />
+              </div>
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg sm:text-xl font-semibold text-court-800 mb-2">Chargement en cours</h3>
+              <p className="text-sm sm:text-base text-court-600">Configuration des clubs...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (clubsError) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="card p-6 sm:p-8 animate-fade-in">
+          <div className="flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 bg-error-100 rounded-2xl flex items-center justify-center">
+              <span className="text-2xl text-error-600">⚠️</span>
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-error-800 mb-2">Erreur de configuration</h3>
+              <p className="text-sm text-error-600">{clubsError}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -122,128 +127,201 @@ const PadelAvailabilityChecker = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
-          🎾 Vérificateur de Disponibilité Padel
-        </h1>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8 space-y-6 sm:space-y-8">
+      {/* Search Form Card */}
+      <div className="card card-hover p-6 sm:p-8 animate-fade-in">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold gradient-text mb-2 sm:mb-3">
+            Configurez votre recherche
+          </h2>
+          <p className="text-sm sm:text-base text-court-600 max-w-2xl mx-auto px-2">
+            Sélectionnez vos préférences pour trouver les créneaux de padel disponibles
+          </p>
+        </div>
 
         {/* Day Selection */}
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            Sélectionner les jours
-          </h2>
-          <div className="grid grid-cols-4 gap-3">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-semibold text-court-800">Jours de la semaine</h3>
+              <p className="text-xs sm:text-sm text-court-600">Sélectionnez les jours qui vous intéressent</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
             {daysOfWeek.map(day => (
               <button
                 key={day.value}
                 onClick={() => toggleDay(day.value)}
-                className={`p-3 rounded-lg border-2 transition-all ${
+                className={`day-pill min-h-[44px] touch-manipulation active:scale-95 ${
                   selectedDays.includes(day.value)
-                    ? 'border-green-500 bg-green-50 text-green-700 font-semibold'
-                    : 'border-gray-300 hover:border-gray-400'
+                    ? 'day-pill-active'
+                    : 'day-pill-inactive'
                 }`}
               >
-                {day.label}
+                <span className="block text-xs sm:text-sm uppercase font-medium tracking-wide">
+                  {day.label.slice(0, 3)}
+                </span>
+                <span className="block text-xs mt-0.5 opacity-75 hidden sm:block">
+                  {day.label.slice(3)}
+                </span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Time Range Selection */}
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            Plage horaire
-          </h2>
-          <div className="flex gap-4 items-center">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">De</label>
+              <h3 className="text-base sm:text-lg font-semibold text-court-800">Plage horaire</h3>
+              <p className="text-xs sm:text-sm text-court-600">Définissez vos heures préférées</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-court-700">Heure de début</label>
               <input
                 type="time"
                 value={timeRange.start}
                 onChange={(e) => setTimeRange(prev => ({ ...prev, start: e.target.value }))}
-                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="input-field w-full min-h-[44px] text-base"
               />
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">À</label>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-court-700">Heure de fin</label>
               <input
                 type="time"
                 value={timeRange.end}
                 onChange={(e) => setTimeRange(prev => ({ ...prev, end: e.target.value }))}
-                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="input-field w-full min-h-[44px] text-base"
               />
             </div>
           </div>
         </div>
 
         {/* Weeks Ahead Selection */}
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-3">Nombre de semaines à vérifier</h2>
-          <div className="flex items-center gap-4">
-            <input
-              type="range"
-              min="1"
-              max="4"
-              value={weeksAhead}
-              onChange={(e) => setWeeksAhead(Number(e.target.value))}
-              className="flex-1"
-            />
-            <span className="text-lg font-medium w-20 text-center">
-              {weeksAhead} {weeksAhead === 1 ? 'semaine' : 'semaines'}
-            </span>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-primary-400 to-primary-500 rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold text-xs sm:text-sm">📅</span>
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-semibold text-court-800">Période de recherche</h3>
+              <p className="text-xs sm:text-sm text-court-600">Combien de semaines à l'avance?</p>
+            </div>
           </div>
           
-          {/* Include Prior Weeks Checkbox */}
-          <div className="mt-3">
-            <label className="flex items-center gap-2 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                checked={includePriorWeeks}
-                onChange={(e) => setIncludePriorWeeks(e.target.checked)}
-                className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
-              />
-              <span>
-                Inclure toutes les semaines précédentes
+          <div className="bg-court-50 rounded-xl p-4 sm:p-6">
+            <div className="flex items-center gap-4 sm:gap-6 mb-4">
+              <div className="flex-1">
+                <input
+                  type="range"
+                  min="1"
+                  max="4"
+                  value={weeksAhead}
+                  onChange={(e) => setWeeksAhead(Number(e.target.value))}
+                  className="w-full h-3 bg-court-200 rounded-lg appearance-none cursor-pointer slider touch-manipulation"
+                />
+                <div className="flex justify-between text-xs text-court-500 mt-1">
+                  <span>1 sem</span>
+                  <span>2 sem</span>
+                  <span>3 sem</span>
+                  <span>4 sem</span>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl px-3 sm:px-4 py-2 sm:py-3 border-2 border-primary-200">
+                <span className="text-xl sm:text-2xl font-bold text-primary-600">
+                  {weeksAhead}
+                </span>
+                <span className="text-xs sm:text-sm text-court-600 ml-1">
+                  {weeksAhead === 1 ? 'sem.' : 'sem.'}
+                </span>
+              </div>
+            </div>
+            
+            {/* Include Prior Weeks Checkbox */}
+            <label className="flex items-start gap-3 cursor-pointer touch-manipulation">
+              <div className="relative mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={includePriorWeeks}
+                  onChange={(e) => setIncludePriorWeeks(e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded border-2 transition-all ${
+                  includePriorWeeks 
+                    ? 'bg-primary-500 border-primary-500' 
+                    : 'border-court-300 bg-white'
+                }`}>
+                  {includePriorWeeks && (
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white absolute top-0.5 left-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <div className="flex-1">
+                <span className="text-sm font-medium text-court-800">
+                  Inclure toutes les semaines précédentes
+                </span>
                 {weeksAhead > 1 && (
-                  <span className="text-gray-500 ml-1">
-                    ({includePriorWeeks 
-                      ? `semaines 1 à ${weeksAhead}` 
-                      : `semaine ${weeksAhead} uniquement`
-                    })
-                  </span>
+                  <p className="text-xs text-court-600 mt-1">
+                    {includePriorWeeks 
+                      ? `Rechercher dans les semaines 1 à ${weeksAhead}` 
+                      : `Rechercher uniquement dans la semaine ${weeksAhead}`
+                    }
+                  </p>
                 )}
-              </span>
+              </div>
             </label>
           </div>
         </div>
 
         {/* Search Button */}
-        <button
-          onClick={searchAvailability}
-          disabled={loading || selectedDays.length === 0}
-          className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-        >
-          {loading ? (
-            <>
-              <Loader className="w-5 h-5 animate-spin" />
-              Recherche en cours...
-            </>
-          ) : (
-            <>
-              <Search className="w-5 h-5" />
-              Rechercher les disponibilités
-            </>
+        <div className="text-center">
+          <button
+            onClick={searchAvailability}
+            disabled={loading || selectedDays.length === 0}
+            className={`btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto sm:min-w-[280px] min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none touch-manipulation ${
+              loading ? 'animate-pulse' : ''
+            }`}
+          >
+            {loading ? (
+              <div className="flex items-center justify-center gap-2 sm:gap-3">
+                <Loader className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
+                <span>Recherche en cours...</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2 sm:gap-3">
+                <Search className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span>Rechercher les disponibilités</span>
+              </div>
+            )}
+          </button>
+          
+          {selectedDays.length === 0 && !loading && (
+            <p className="text-xs sm:text-sm text-court-500 mt-3 animate-fade-in px-2">
+              ⚠️ Veuillez sélectionner au moins un jour
+            </p>
           )}
-        </button>
+        </div>
 
         {/* Error Message */}
         {error && (
-          <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-lg flex items-center gap-2">
-            <XCircle className="w-5 h-5" />
-            {error}
+          <div className="mt-6 p-4 bg-error-50 border-l-4 border-error-500 rounded-xl animate-slide-up">
+            <div className="flex items-start gap-3">
+              <XCircle className="w-5 h-5 text-error-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="text-sm font-medium text-error-800 mb-1">Erreur</h4>
+                <p className="text-sm text-error-700">{error}</p>
+              </div>
+            </div>
           </div>
         )}
       </div>

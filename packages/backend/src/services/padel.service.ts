@@ -1,10 +1,10 @@
 import fetch from 'node-fetch';
-import { CLUBS, PADEL_CONFIG } from '../config/constants';
+import { CLUBS, PADEL_CONFIG } from '../config/constants.js';
 import {
   ApiResponse,
   AvailabilityResult,
   DayAvailability
-} from '../types/padel.types';
+} from '../types/padel.types.js';
 import {
   FilterRequest,
   FilteredAvailabilityResult,

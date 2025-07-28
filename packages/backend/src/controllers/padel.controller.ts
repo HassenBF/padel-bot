@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { padelService } from '../services/padel.service';
-import { padelCronJobs } from '../jobs/padel.cron';
+import { padelService } from '../services/padel.service.js';
+import { padelCronJobs } from '../jobs/padel.cron.js';
 import { FilterRequest } from '@padel-bot/shared';
-import { CLUBS } from '../config/constants';
-import { AppError } from '../middleware/error-handler';
+import { CLUBS } from '../config/constants.js';
+import { AppError } from '../middleware/error-handler.js';
 
 export class PadelController {
   async checkAvailabilityForDate(req: Request, res: Response): Promise<void> {

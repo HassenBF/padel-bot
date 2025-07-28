@@ -5,10 +5,11 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon --watch src --exec ts-node --esm src/index.ts",
+    "dev": "nodemon --watch src --exec \"node --loader ts-node/esm\" src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "check": "tsc --noEmit"
   },
   "dependencies": {
     "@padel-bot/shared": "workspace:*",

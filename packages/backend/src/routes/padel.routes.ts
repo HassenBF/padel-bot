@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { padelController } from '../controllers/padel.controller';
-import { asyncHandler } from '../middleware/error-handler';
+import { padelController } from '../controllers/padel.controller.js';
+import { asyncHandler } from '../middleware/error-handler.js';
 
 export const padelRouter: Router = Router();
 
